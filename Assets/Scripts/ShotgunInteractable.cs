@@ -1,20 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 public class ShotgunInteractable : MonoBehaviour
 {
     [SerializeField] Transform barrelGuardTransform;
-    [SerializeField] float barrelGuardZPosLimit;
+    [SerializeField] float barrelGuardZPosMin;
 
-    Vector3 _startBarrelGuardPos;
+    [SerializeField] Vector3 _startBarrelGuardPos;
 
     Transform _firstSelectHandTransform;
     Transform _secondSelectHandTransform;
 
     IXRSelectInteractable _interactable;
     XRInteractionManager _interactionManager;
+    XRGeneralGrabTransformer _grabTransformer;
+
+    Shooter _shooter;
+    bool _isActivatedPumpAction;
 
     public bool IsReadyToUse 
     { 
@@ -28,13 +34,22 @@ public class ShotgunInteractable : MonoBehaviour
     {
         _interactable = GetComponent<IXRSelectInteractable>();
         _interactionManager = FindAnyObjectByType<XRInteractionManager>();
-        _startBarrelGuardPos = barrelGuardTransform.position;
+        _startBarrelGuardPos = barrelGuardTransform.localPosition;
+        _shooter = GetComponent<Shooter>();
+        _grabTransformer = GetComponent<XRGeneralGrabTransformer>();
     }
 
     void Update()
     {
         if (!IsReadyToUse)
             return;
+
+        if (_isActivatedPumpAction)
+        {
+            float amount = _secondSelectHandTransform.position.z - barrelGuardTransform.position.z;
+            float zValue = Mathf.Clamp(barrelGuardTransform.localPosition.z + amount, barrelGuardZPosMin, _startBarrelGuardPos.z);
+            barrelGuardTransform.localPosition = new Vector3(_startBarrelGuardPos.x, _startBarrelGuardPos.y, zValue);
+        }
     }
 
     public void Grab(SelectEnterEventArgs args)
@@ -79,6 +94,29 @@ public class ShotgunInteractable : MonoBehaviour
         {
             Debug.Log($"second hand release! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
             _secondSelectHandTransform = null;
+        }
+    }
+
+    public void Activate(ActivateEventArgs args)
+    {
+        if (!IsReadyToUse)
+            return;
+
+        if (args.interactorObject.transform.parent == _firstSelectHandTransform)
+        {
+            _shooter.Shoot();
+        }
+        else
+        {
+            _isActivatedPumpAction = true;
+        }
+    }
+
+    public void DeActivate(DeactivateEventArgs args)
+    {
+        if (args.interactorObject.transform.parent == _secondSelectHandTransform)
+        {
+            _isActivatedPumpAction = false;
         }
     }
 

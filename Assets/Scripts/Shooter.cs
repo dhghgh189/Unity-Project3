@@ -1,31 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class Shooter : MonoBehaviour
 {
-    [SerializeField] Bullet bulletPrefab;
     [SerializeField] AudioClip shotClip;
     [SerializeField] Transform muzzlePoint;
     [SerializeField] float shotPower;
-    [SerializeField] float shotInterval;
+    [SerializeField] Transform reloadPoint;
 
     [Header("Gun Setting")]
     [SerializeField] int maxAmmo;
 
     AudioSource _audioSource;
-    float _nextShotTime;
     ShotgunInteractable _interactable;
 
-    WaitForSeconds _waitTime;
+    Queue<Ammo> _magazine;
+    int _remainAmmo => _magazine.Where(x => x.IsUsed == false).Count();
+
+    [Header("For Sync")]
+    [SerializeField] float waitTimeForSync;
+    WaitForSeconds _waitTimeForSync;
+
+    Coroutine _fireRoutine;
 
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
-        _nextShotTime = 0;
         _interactable = GetComponent<ShotgunInteractable>();
 
-        _waitTime = new WaitForSeconds(0.17f);
+        _waitTimeForSync = new WaitForSeconds(waitTimeForSync);
+
+        _magazine = new Queue<Ammo>(maxAmmo);
     }
 
     public void Shoot()
@@ -34,20 +42,52 @@ public class Shooter : MonoBehaviour
         if (!_interactable.IsReadyToUse)
             return;
 
-        if (Time.time < _nextShotTime)
+        // 남은 탄 수 확인
+        if (_remainAmmo <= 0)
             return;
 
-        StartCoroutine(FireRoutine());
+        // 탄피 배출 여부 확인
+        if (_magazine.Peek().IsUsed)
+            return;
+
+        // 연속 발사 방지
+        if (_fireRoutine != null)
+            return;
+
+        _fireRoutine = StartCoroutine(FireRoutine());
+    }
+
+    public void Reload(SelectEnterEventArgs args)
+    {
+        Ammo ammo = args.interactableObject.transform.gameObject.GetComponent<Ammo>();
+        if (ammo == null)
+        {
+            Debug.LogError("Reload Error !");
+            return;
+        }
+
+        _magazine.Enqueue(ammo);
+        ammo.gameObject.SetActive(false);
+
+        Debug.Log("Reload!");
+
+        if (_magazine.Count >= maxAmmo)
+        {
+            // 최대 장탄수만큼 장전 후에는 장전 불가
+            reloadPoint.gameObject.SetActive(false);
+        }
     }
 
     IEnumerator FireRoutine()
     {
         _audioSource.PlayOneShot(shotClip);
-        yield return _waitTime;
+        yield return _waitTimeForSync;
 
-        Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        bullet.AddForce(muzzlePoint.transform.forward * shotPower, ForceMode.Impulse);
+        Ammo currentAmmo = _magazine.Peek();
+        currentAmmo.Use(muzzlePoint, shotPower);
 
-        _nextShotTime = Time.time + shotInterval;
+        Debug.Log("Shot!");
+
+        _fireRoutine = null;
     }
 }
