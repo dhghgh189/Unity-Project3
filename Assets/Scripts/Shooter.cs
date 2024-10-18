@@ -13,10 +13,14 @@ public class Shooter : MonoBehaviour
     AudioSource _audioSource;
     float _nextShotTime;
 
+    WaitForSeconds _waitTime;
+
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
         _nextShotTime = 0;
+
+        _waitTime = new WaitForSeconds(0.17f);
     }
 
     public void Shoot()
@@ -24,12 +28,25 @@ public class Shooter : MonoBehaviour
         if (Time.time < _nextShotTime)
             return;
 
+        //Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+        //if (bullet != null)
+        //{
+        //    _audioSource.PlayOneShot(shotClip);
+        //    bullet.AddForce(muzzlePoint.transform.forward * shotPower, ForceMode.Impulse);
+        //    _nextShotTime = Time.time + shotInterval;
+        //}
+
+        StartCoroutine(FireRoutine());
+    }
+
+    IEnumerator FireRoutine()
+    {
+        _audioSource.PlayOneShot(shotClip);
+        yield return _waitTime;
+
         Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        if (bullet != null)
-        {
-            bullet.AddForce(muzzlePoint.transform.forward * shotPower, ForceMode.Impulse);
-            _audioSource.PlayOneShot(shotClip);
-            _nextShotTime = Time.time + shotInterval;
-        }
+        bullet.AddForce(muzzlePoint.transform.forward * shotPower, ForceMode.Impulse);
+
+        _nextShotTime = Time.time + shotInterval;
     }
 }
