@@ -10,8 +10,12 @@ public class Shooter : MonoBehaviour
     [SerializeField] float shotPower;
     [SerializeField] float shotInterval;
 
+    [Header("Gun Setting")]
+    [SerializeField] int maxAmmo;
+
     AudioSource _audioSource;
     float _nextShotTime;
+    ShotgunInteractable _interactable;
 
     WaitForSeconds _waitTime;
 
@@ -19,22 +23,19 @@ public class Shooter : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
         _nextShotTime = 0;
+        _interactable = GetComponent<ShotgunInteractable>();
 
         _waitTime = new WaitForSeconds(0.17f);
     }
 
     public void Shoot()
     {
-        if (Time.time < _nextShotTime)
+        // 양손 grab 여부 확인
+        if (!_interactable.IsReadyToUse)
             return;
 
-        //Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        //if (bullet != null)
-        //{
-        //    _audioSource.PlayOneShot(shotClip);
-        //    bullet.AddForce(muzzlePoint.transform.forward * shotPower, ForceMode.Impulse);
-        //    _nextShotTime = Time.time + shotInterval;
-        //}
+        if (Time.time < _nextShotTime)
+            return;
 
         StartCoroutine(FireRoutine());
     }
