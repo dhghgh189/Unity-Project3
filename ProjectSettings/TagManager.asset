@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - FxTemporaire
+  - BarrelGuard
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - Gun
   - Destructibles
   - Ammo
-  - 
-  - 
+  - BarrelGuard
+  - GunTrigger
   - 
   - 
   - 

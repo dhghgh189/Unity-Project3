@@ -10,6 +10,10 @@ public class Shooter : MonoBehaviour
     [SerializeField] Transform muzzlePoint;
     [SerializeField] float shotPower;
     [SerializeField] Transform reloadPoint;
+    [SerializeField] Transform ejectPoint;
+    [SerializeField] float ejectPower;
+
+    [SerializeField] XRSocketInteractor socketInteractor;
 
     [Header("Gun Setting")]
     [SerializeField] int maxAmmo;
@@ -26,6 +30,11 @@ public class Shooter : MonoBehaviour
 
     Coroutine _fireRoutine;
 
+    // 약실
+    Ammo _chamber;
+
+    XRInteractionManager _interactionManager;
+
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
@@ -34,6 +43,8 @@ public class Shooter : MonoBehaviour
         _waitTimeForSync = new WaitForSeconds(waitTimeForSync);
 
         _magazine = new Queue<Ammo>(maxAmmo);
+
+        _interactionManager = FindAnyObjectByType<XRInteractionManager>();
     }
 
     public void Shoot()
@@ -42,12 +53,12 @@ public class Shooter : MonoBehaviour
         if (!_interactable.IsReadyToUse)
             return;
 
-        // 남은 탄 수 확인
-        if (_remainAmmo <= 0)
+        // 약실 확인
+        if (_chamber == null)
             return;
 
         // 탄피 배출 여부 확인
-        if (_magazine.Peek().IsUsed)
+        if (_chamber.IsUsed)
             return;
 
         // 연속 발사 방지
@@ -62,7 +73,8 @@ public class Shooter : MonoBehaviour
         Ammo ammo = args.interactableObject.transform.gameObject.GetComponent<Ammo>();
         if (ammo == null)
         {
-            Debug.LogError("Reload Error !");
+            Debug.LogWarning("can't reload : Invalid");
+            _interactionManager.SelectCancel(args.interactorObject, args.interactableObject);
             return;
         }
 
@@ -78,12 +90,47 @@ public class Shooter : MonoBehaviour
         }
     }
 
+    public void Eject()
+    {
+        // 탄이 사용되지 않았어도 eject 가능 한지에 대한 고려 필요
+        if (_chamber != null && _chamber.IsUsed)
+        {
+            Ammo currentAmmo = _chamber;
+            currentAmmo.GetComponent<XRGrabInteractable>().interactionLayers = 0;
+            currentAmmo.gameObject.SetActive(true);
+            currentAmmo.gameObject.transform.position = ejectPoint.position;
+            currentAmmo.gameObject.transform.rotation = ejectPoint.rotation;
+            currentAmmo.GetComponent<Rigidbody>().AddForce(ejectPoint.right * ejectPower, ForceMode.Impulse);
+
+            // 약실 비움
+            _chamber = null;
+        }
+    }
+
+    public void LoadAmmoToChamber()
+    {
+        if (_chamber != null)
+            return;
+
+        if (_magazine.Count > 0 && _magazine.Peek().IsUsed == false)
+        {
+            _chamber = _magazine.Dequeue();
+            Debug.Log("Load Ammo To Chamber!");
+
+            if (_magazine.Count < maxAmmo)
+            {
+                // 탄창에 비는 공간이 생기면 다시 장전 가능
+                reloadPoint.gameObject.SetActive(true);
+            }
+        }
+    }
+
     IEnumerator FireRoutine()
     {
         _audioSource.PlayOneShot(shotClip);
         yield return _waitTimeForSync;
 
-        Ammo currentAmmo = _magazine.Peek();
+        Ammo currentAmmo = _chamber;
         currentAmmo.Use(muzzlePoint, shotPower);
 
         Debug.Log("Shot!");

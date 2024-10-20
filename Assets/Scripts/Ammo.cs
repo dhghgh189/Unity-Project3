@@ -9,11 +9,6 @@ public class Ammo : MonoBehaviour
     bool _isUsed;
     public bool IsUsed { get { return _isUsed; } }
 
-    void OnEnable()
-    {
-        _isUsed = false;    
-    }
-
     public void Use(Transform muzzlePoint, float power)
     {
         Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);

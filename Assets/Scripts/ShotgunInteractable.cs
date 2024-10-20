@@ -94,6 +94,9 @@ public class ShotgunInteractable : MonoBehaviour
         {
             Debug.Log($"second hand release! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
             _secondSelectHandTransform = null;
+
+            // 펌프 액션 모드일때 second hand의 검지 trigger를 떼지않고 총을 놓으면 pump action모드가 해제되지 않는 문제 수정
+            _isActivatedPumpAction = false;
         }
     }
 
