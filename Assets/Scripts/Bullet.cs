@@ -28,16 +28,7 @@ public class Bullet : MonoBehaviour
         if (((1 << other.gameObject.layer) & whatIsTarget) != 0)
         {
             Destroy(other.gameObject);
-        }
-
-        Destroy(gameObject);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (((1 << other.gameObject.layer) & whatIsTarget) != 0)
-        {
-            Destroy(other.gameObject);
+            Debug.Log("Hit Target!");
         }
 
         Destroy(gameObject);
