@@ -10,12 +10,12 @@ public class BarrelGuard : MonoBehaviour
     {
         if (other.gameObject.name == "LoadTrigger")
         {
-            Debug.Log("LoadTrigger Enter");
+            //Debug.Log("LoadTrigger Enter");
             _shooter.LoadAmmoToChamber();
         }
         else if (other.gameObject.name == "EjectTrigger")
         {
-            Debug.Log("EjectTrigger Enter");
+            //Debug.Log("EjectTrigger Enter");
             _shooter.Eject();
         }
     }

@@ -25,7 +25,9 @@ public class Ammo : MonoBehaviour
             bullet.AddForce(bullet.transform.forward * power, ForceMode.Impulse);
         }
 
+        //EditorApplication.isPaused = true;
+
         _isUsed = true;
-        Debug.Log("Ammo is used, please eject empty cartridge");
+        //Debug.Log("Ammo is used, please eject empty cartridge");
     }
 }

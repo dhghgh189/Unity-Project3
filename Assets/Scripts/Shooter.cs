@@ -78,7 +78,7 @@ public class Shooter : MonoBehaviour
         _magazine.Enqueue(ammo);
         ammo.gameObject.SetActive(false);
 
-        Debug.Log("Reload!");
+        //Debug.Log("Reload!");
 
         if (_magazine.Count >= maxAmmo)
         {
@@ -116,7 +116,7 @@ public class Shooter : MonoBehaviour
             _audioSource.PlayOneShot(loadToChamberClip);
 
             _chamber = _magazine.Dequeue();
-            Debug.Log("Load Ammo To Chamber!");
+            //Debug.Log("Load Ammo To Chamber!");
 
             if (_magazine.Count < maxAmmo)
             {
@@ -140,7 +140,7 @@ public class Shooter : MonoBehaviour
         Ammo currentAmmo = _chamber;
         currentAmmo.Use(muzzlePoint, shotPower);
 
-        Debug.Log("Shot!");
+        //Debug.Log("Shot!");
 
         _fireRoutine = null;
     }

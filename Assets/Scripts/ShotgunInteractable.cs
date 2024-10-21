@@ -66,12 +66,12 @@ public class ShotgunInteractable : MonoBehaviour
         if (_firstSelectHandTransform == null)
         {
             SetFirstHand(args.interactorObject);
-            Debug.Log($"first hand grab! : {_firstSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
+            //Debug.Log($"first hand grab! : {_firstSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
         }
         else
         {
             SetSecondHand(args.interactorObject);
-            Debug.Log($"second hand grab! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
+            //Debug.Log($"second hand grab! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
         }
     }
 
@@ -87,12 +87,12 @@ public class ShotgunInteractable : MonoBehaviour
         // 버튼을 Release한 Hand가 어느 Hand인지 체크
         if (args.interactorObject.transform.parent == _firstSelectHandTransform)
         {
-            Debug.Log($"first hand release! : {_firstSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
+            //Debug.Log($"first hand release! : {_firstSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
             _firstSelectHandTransform = null;
         }
         else
         {
-            Debug.Log($"second hand release! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
+            //Debug.Log($"second hand release! : {_secondSelectHandTransform.name} ({args.interactorObject.transform.gameObject.name})");
             _secondSelectHandTransform = null;
 
             // 펌프 액션 모드일때 second hand의 검지 trigger를 떼지않고 총을 놓으면 pump action모드가 해제되지 않는 문제 수정
