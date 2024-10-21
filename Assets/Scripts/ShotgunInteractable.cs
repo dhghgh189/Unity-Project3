@@ -100,6 +100,19 @@ public class ShotgunInteractable : MonoBehaviour
         }
     }
 
+    public void TryReload(SelectEnterEventArgs args)
+    {
+        Ammo ammo = args.interactableObject.transform.gameObject.GetComponent<Ammo>();
+        if (ammo == null)
+        {
+            Debug.LogWarning("can't reload : Invalid");
+            _interactionManager.SelectCancel(args.interactorObject, args.interactableObject);
+            return;
+        }
+
+        _shooter.Reload(ammo);
+    }
+
     public void Activate(ActivateEventArgs args)
     {
         if (!IsReadyToUse)

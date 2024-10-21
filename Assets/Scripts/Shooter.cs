@@ -6,7 +6,6 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class Shooter : MonoBehaviour
 {
-    [SerializeField] AudioClip shotClip;
     [SerializeField] Transform muzzlePoint;
     [SerializeField] float shotPower;
     [SerializeField] Transform reloadPoint;
@@ -17,6 +16,11 @@ public class Shooter : MonoBehaviour
 
     [Header("Gun Setting")]
     [SerializeField] int maxAmmo;
+    [SerializeField] AudioClip shotClip;
+    [SerializeField] AudioClip reloadClip;
+    [SerializeField] AudioClip ejectClip;
+    [SerializeField] AudioClip loadToChamberClip;
+    [SerializeField] GameObject shotEffect;
 
     AudioSource _audioSource;
     ShotgunInteractable _interactable;
@@ -68,16 +72,9 @@ public class Shooter : MonoBehaviour
         _fireRoutine = StartCoroutine(FireRoutine());
     }
 
-    public void Reload(SelectEnterEventArgs args)
+    public void Reload(Ammo ammo)
     {
-        Ammo ammo = args.interactableObject.transform.gameObject.GetComponent<Ammo>();
-        if (ammo == null)
-        {
-            Debug.LogWarning("can't reload : Invalid");
-            _interactionManager.SelectCancel(args.interactorObject, args.interactableObject);
-            return;
-        }
-
+        _audioSource.PlayOneShot(reloadClip);
         _magazine.Enqueue(ammo);
         ammo.gameObject.SetActive(false);
 
@@ -95,6 +92,8 @@ public class Shooter : MonoBehaviour
         // 탄이 사용되지 않았어도 eject 가능 한지에 대한 고려 필요
         if (_chamber != null && _chamber.IsUsed)
         {
+            _audioSource.PlayOneShot(ejectClip);
+
             Ammo currentAmmo = _chamber;
             currentAmmo.GetComponent<XRGrabInteractable>().interactionLayers = 0;
             currentAmmo.gameObject.SetActive(true);
@@ -114,6 +113,8 @@ public class Shooter : MonoBehaviour
 
         if (_magazine.Count > 0 && _magazine.Peek().IsUsed == false)
         {
+            _audioSource.PlayOneShot(loadToChamberClip);
+
             _chamber = _magazine.Dequeue();
             Debug.Log("Load Ammo To Chamber!");
 
@@ -128,6 +129,12 @@ public class Shooter : MonoBehaviour
     IEnumerator FireRoutine()
     {
         _audioSource.PlayOneShot(shotClip);
+
+        // 풀링 필요?
+        GameObject effect = Instantiate(shotEffect, muzzlePoint);
+        effect.transform.position = muzzlePoint.position;
+        effect.transform.rotation = muzzlePoint.rotation;
+
         yield return _waitTimeForSync;
 
         Ammo currentAmmo = _chamber;
