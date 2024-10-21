@@ -27,8 +27,12 @@ public class Bullet : MonoBehaviour
     {
         if (((1 << other.gameObject.layer) & whatIsTarget) != 0)
         {
-            Destroy(other.gameObject);
-            Debug.Log("Hit Target!");
+            Target target = other.gameObject.GetComponent<Target>();
+            if (target != null)
+            {
+                target.Hit();
+                Debug.Log("Hit Target!");
+            }
         }
 
         //Debug.Log($"hit object : {other.gameObject.name}");

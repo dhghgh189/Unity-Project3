@@ -39,6 +39,12 @@ public class Shooter : MonoBehaviour
 
     XRInteractionManager _interactionManager;
 
+    // 라운드 당 정해진 횟수만큼만 발사 가능
+    int _shootableCount;
+
+    public int MaxAmmo { get { return maxAmmo; } }
+    public int WholeAmmo { get { return _chamber != null ? (_magazine.Count + 1) : (_magazine.Count); } }
+
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
@@ -51,8 +57,22 @@ public class Shooter : MonoBehaviour
         _interactionManager = FindAnyObjectByType<XRInteractionManager>();
     }
 
+    void Start()
+    {
+        GameManager.Instance.SetShooter(this);
+    }
+
+    public void SetInfo(int shootableCount)
+    {
+        _shootableCount = shootableCount;
+    }
+
     public void Shoot()
     {
+        // 해당 라운드에서 발사할 수 있는 횟수가 남았는지 확인
+        if (_shootableCount <= 0)
+            return;
+
         // 양손 grab 여부 확인
         if (!_interactable.IsReadyToUse)
             return;
@@ -141,6 +161,8 @@ public class Shooter : MonoBehaviour
         currentAmmo.Use(muzzlePoint, shotPower);
 
         //Debug.Log("Shot!");
+
+        _shootableCount--;
 
         _fireRoutine = null;
     }

@@ -20,7 +20,6 @@ public class Spawner : MonoBehaviour
     private void Awake()
     {
         _waitTime = new WaitForSeconds(waitTime);
-
         _canSpawn = true;
 
         // temp
