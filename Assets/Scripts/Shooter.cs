@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class Shooter : MonoBehaviour
@@ -22,6 +23,9 @@ public class Shooter : MonoBehaviour
     [SerializeField] AudioClip loadToChamberClip;
     [SerializeField] GameObject shotEffect;
 
+    [Header("UI")]
+    [SerializeField] UI_Gun uiGun;
+
     ShotgunInteractable _interactable;
 
     Queue<Ammo> _magazine;
@@ -37,6 +41,9 @@ public class Shooter : MonoBehaviour
     Ammo _chamber;
 
     XRInteractionManager _interactionManager;
+
+    public UnityAction<int> OnChangedMagazine;
+    public UnityAction<bool> OnChangedChamber;
 
     // 라운드 당 정해진 횟수만큼만 발사 가능
     int _shootableCount;
@@ -71,6 +78,7 @@ public class Shooter : MonoBehaviour
     void Start()
     {
         GameManager.Instance.SetShooter(this);
+        uiGun.gameObject.SetActive(true);
     }
 
     public void SetInfo(int shootableCount)
@@ -117,6 +125,9 @@ public class Shooter : MonoBehaviour
             // 최대 장탄수만큼 장전 후에는 장전 불가
             reloadPoint.gameObject.SetActive(false);
         }
+
+        // event (UI)
+        OnChangedMagazine?.Invoke(_magazine.Count);
     }
 
     public void Eject()
@@ -150,6 +161,8 @@ public class Shooter : MonoBehaviour
             SoundManager.Instance.PlayClipAtPoint(loadToChamberClip, transform.position);
 
             _chamber = _magazine.Dequeue();
+
+            OnChangedChamber?.Invoke(true);
             //Debug.Log("Load Ammo To Chamber!");
 
             if (_magazine.Count < maxAmmo)
@@ -157,6 +170,8 @@ public class Shooter : MonoBehaviour
                 // 탄창에 비는 공간이 생기면 다시 장전 가능
                 reloadPoint.gameObject.SetActive(true);
             }
+
+            OnChangedMagazine?.Invoke(_magazine.Count);
         }
     }
 
@@ -174,6 +189,7 @@ public class Shooter : MonoBehaviour
         Ammo currentAmmo = _chamber;
         currentAmmo.Use(muzzlePoint, shotPower);
 
+        OnChangedChamber?.Invoke(false);
         //Debug.Log("Shot!");
 
         _shootableCount--;

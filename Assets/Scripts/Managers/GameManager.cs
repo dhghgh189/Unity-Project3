@@ -34,7 +34,8 @@ public class GameManager : Singleton<GameManager>
     public EState CurState { get { return _curState; } }
 
     // ÂüÁ¶
-    Shooter _shooter;
+    Shooter _shooter;  
+    public Shooter Shooter { get { return _shooter; } }
 
     public void SetShooter(Shooter shooter)
     {

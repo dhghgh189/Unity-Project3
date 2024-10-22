@@ -40,7 +40,7 @@ public class Ammo : MonoBehaviour
     {
         for (int i = 0; i < bulletCount; i++)
         {
-            float xAngle = Random.Range(-maxAngle, 0);
+            float xAngle = Random.Range(-maxAngle, maxAngle);
             float yAngle = Random.Range(-maxAngle, maxAngle);
 
             //Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);

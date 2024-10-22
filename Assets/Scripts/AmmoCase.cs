@@ -24,6 +24,7 @@ public class AmmoCase : MonoBehaviour
 
         //Ammo ammo = Instantiate(ammoPrefab);
         Ammo ammo = PoolManager.Instance.Pop<Ammo>(ammoPrefab.gameObject);
+        ammo.transform.position = gameObject.transform.position;
         ammo.Init();
         _interactionManager.SelectEnter(args.interactorObject, ammo.GetComponent<IXRSelectInteractable>());
     }

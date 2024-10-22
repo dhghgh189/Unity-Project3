@@ -104,7 +104,6 @@ public class ShotgunInteractable : MonoBehaviour
 
     public void TryReload(SelectEnterEventArgs args)
     {
-        Debug.Log($"reload args : {args.interactorObject.transform.name}");
         Ammo ammo = args.interactableObject.transform.gameObject.GetComponent<Ammo>();
         if (ammo == null)
         {
