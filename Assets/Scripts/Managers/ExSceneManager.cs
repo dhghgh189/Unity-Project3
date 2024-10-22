@@ -4,25 +4,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-public class ExSceneManager : MonoBehaviour
+public class ExSceneManager : Singleton<ExSceneManager>
 {
-    static ExSceneManager _instance = null;
-    public static ExSceneManager Instance { get { return _instance; } }
-
     public UnityAction OnChangedScene;
-
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
 
     public void LoadScene(int sceneBuildIndex)
     {

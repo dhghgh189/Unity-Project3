@@ -2,32 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
-public class PoolManager : MonoBehaviour
+public class PoolManager : Singleton<PoolManager>
 {
-    static PoolManager _instance = null;
-    public static PoolManager Instance { get { return _instance; } }
-
     // 풀링 오브젝트의 default pool size
     [SerializeField] int defaultPoolSize;
     public int DefaultPoolSize { get { return defaultPoolSize; } }
 
     Dictionary<string, StackPool> _pools;
 
-    void Awake()
+    protected override void Init()
     {
-        if (_instance == null)
-        {
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            _pools = new Dictionary<string, StackPool>();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        _pools = new Dictionary<string, StackPool>();
     }
 
     public void CreatePool(GameObject original, int poolSize = 0)

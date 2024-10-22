@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    static GameManager _instance;
-    public static GameManager Instance { get { return _instance; } }
-
     [SerializeField] Spawner _spawner;
     [SerializeField] int maxRound;
 
@@ -38,19 +35,6 @@ public class GameManager : MonoBehaviour
 
     // ÂüÁ¶
     Shooter _shooter;
-
-    void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
 
     public void SetShooter(Shooter shooter)
     {
