@@ -32,8 +32,8 @@ public class Ammo : MonoBehaviour
 
     public void Init()
     {
-        _isUsed = false;
         SetInteractionLayer(_originalLayer);
+        _isUsed = false;
     }
 
     public void Use(Transform muzzlePoint, float power)

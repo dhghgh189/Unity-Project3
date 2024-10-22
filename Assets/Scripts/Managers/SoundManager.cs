@@ -53,6 +53,11 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
+    public void PlayClipAtPoint(AudioClip clip, Vector3 pos)
+    {
+        AudioSource.PlayClipAtPoint(clip, pos);
+    }
+
     public void Stop(Enums.ESoundType playType)
     {
         audioSources[(int)playType].Stop();

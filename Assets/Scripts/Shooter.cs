@@ -22,7 +22,6 @@ public class Shooter : MonoBehaviour
     [SerializeField] AudioClip loadToChamberClip;
     [SerializeField] GameObject shotEffect;
 
-    AudioSource _audioSource;
     ShotgunInteractable _interactable;
 
     Queue<Ammo> _magazine;
@@ -60,7 +59,6 @@ public class Shooter : MonoBehaviour
 
     void Awake()
     {
-        _audioSource = GetComponent<AudioSource>();
         _interactable = GetComponent<ShotgunInteractable>();
 
         _waitTimeForSync = new WaitForSeconds(waitTimeForSync);
@@ -107,7 +105,7 @@ public class Shooter : MonoBehaviour
 
     public void Reload(Ammo ammo)
     {
-        _audioSource.PlayOneShot(reloadClip);
+        SoundManager.Instance.PlayClipAtPoint(reloadClip, transform.position);
         _magazine.Enqueue(ammo);
         ammo.transform.parent = transform;
         ammo.gameObject.SetActive(false);
@@ -126,10 +124,9 @@ public class Shooter : MonoBehaviour
         // 탄이 사용되지 않았어도 eject 가능 한지에 대한 고려 필요
         if (_chamber != null && _chamber.IsUsed)
         {
-            _audioSource.PlayOneShot(ejectClip);
+            SoundManager.Instance.PlayClipAtPoint(ejectClip, transform.position);
 
             Ammo currentAmmo = _chamber;
-            //currentAmmo.GetComponent<XRGrabInteractable>().interactionLayers = 0;
             currentAmmo.SetInteractionLayer(0);
             currentAmmo.transform.parent = null;
             currentAmmo.gameObject.SetActive(true);
@@ -150,7 +147,7 @@ public class Shooter : MonoBehaviour
 
         if (_magazine.Count > 0 && _magazine.Peek().IsUsed == false)
         {
-            _audioSource.PlayOneShot(loadToChamberClip);
+            SoundManager.Instance.PlayClipAtPoint(loadToChamberClip, transform.position);
 
             _chamber = _magazine.Dequeue();
             //Debug.Log("Load Ammo To Chamber!");
@@ -165,7 +162,7 @@ public class Shooter : MonoBehaviour
 
     IEnumerator FireRoutine()
     {
-        _audioSource.PlayOneShot(shotClip);
+        SoundManager.Instance.PlayClipAtPoint(shotClip, transform.position);
 
         // 풀링 필요?
         GameObject effect = Instantiate(shotEffect, muzzlePoint);

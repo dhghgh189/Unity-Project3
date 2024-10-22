@@ -10,9 +10,6 @@ public class Spawner : MonoBehaviour
     [SerializeField] float waitTime;
     [SerializeField] float launchPower;
 
-    // temp
-    AudioSource _audioSource;
-
     WaitForSeconds _waitTime;
 
     bool _canSpawn;
@@ -21,9 +18,6 @@ public class Spawner : MonoBehaviour
     {
         _waitTime = new WaitForSeconds(waitTime);
         _canSpawn = true;
-
-        // temp
-        _audioSource = GetComponent<AudioSource>();
     }
 
     public void SpawnTarget()
@@ -37,14 +31,14 @@ public class Spawner : MonoBehaviour
 
     IEnumerator SpawnRoutine()
     {
-        _audioSource.PlayOneShot(buzzerClip);
+        SoundManager.Instance.Play(Enums.ESoundType.SFX, buzzerClip);
         // 플레이어가 사격을 준비할 수 있도록 잠시 대기
         yield return _waitTime;
 
         // 풀링 필요?
         GameObject target = Instantiate(targetPrefab, transform.position, transform.rotation);
         target.GetComponent<Rigidbody>().AddForce(transform.forward * launchPower, ForceMode.Impulse);
-        _audioSource.PlayOneShot(launchClip);
+        SoundManager.Instance.Play(Enums.ESoundType.SFX, launchClip);
 
         _canSpawn = true;
     }
