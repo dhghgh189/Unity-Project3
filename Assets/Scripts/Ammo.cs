@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class Ammo : MonoBehaviour
 {
@@ -11,6 +12,29 @@ public class Ammo : MonoBehaviour
 
     bool _isUsed;
     public bool IsUsed { get { return _isUsed; } }
+    WaitForSeconds _destroyTime;
+
+    SelfDestroy _selfDestroy;
+
+    XRGrabInteractable _grabInteractable;
+
+    InteractionLayerMask _originalLayer;
+
+    void Awake()
+    {
+        _selfDestroy = GetComponent<SelfDestroy>();
+        _grabInteractable = GetComponent<XRGrabInteractable>();
+
+        _originalLayer = _grabInteractable.interactionLayers;
+
+        Init();
+    }
+
+    public void Init()
+    {
+        _isUsed = false;
+        SetInteractionLayer(_originalLayer);
+    }
 
     public void Use(Transform muzzlePoint, float power)
     {
@@ -19,15 +43,25 @@ public class Ammo : MonoBehaviour
             float xAngle = Random.Range(-maxAngle, 0);
             float yAngle = Random.Range(-maxAngle, maxAngle);
 
-            // 풀링 필요
-            Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+            //Bullet bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+            Bullet bullet = PoolManager.Instance.Pop<Bullet>(bulletPrefab.gameObject);
+            bullet.transform.position = muzzlePoint.position;
+            bullet.transform.rotation = muzzlePoint.rotation;
             bullet.transform.Rotate(xAngle, yAngle, 0);
             bullet.AddForce(bullet.transform.forward * power, ForceMode.Impulse);
         }
 
-        //EditorApplication.isPaused = true;
-
         _isUsed = true;
         //Debug.Log("Ammo is used, please eject empty cartridge");
+    }
+
+    public void SetInteractionLayer(InteractionLayerMask layerMask)
+    {
+        _grabInteractable.interactionLayers = layerMask;
+    }
+
+    public void ReserveDestroy()
+    {
+        _selfDestroy.ReserveDestroy();
     }
 }

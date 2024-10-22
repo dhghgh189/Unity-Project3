@@ -36,6 +36,8 @@ public class Bullet : MonoBehaviour
         }
 
         //Debug.Log($"hit object : {other.gameObject.name}");
-        Destroy(gameObject);
+
+        if (PoolManager.Instance.Push(gameObject) == false)
+            Destroy(gameObject);
     }
 }

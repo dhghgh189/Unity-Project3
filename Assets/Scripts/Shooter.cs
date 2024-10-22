@@ -43,7 +43,20 @@ public class Shooter : MonoBehaviour
     int _shootableCount;
 
     public int MaxAmmo { get { return maxAmmo; } }
-    public int WholeAmmo { get { return _chamber != null ? (_magazine.Count + 1) : (_magazine.Count); } }
+    public int WholeAmmo 
+    {
+        get 
+        {
+            if (_chamber != null && _chamber.IsUsed == false)
+            {
+                return _magazine.Count + 1;
+            }
+            else
+            {
+                return _magazine.Count;
+            }
+        } 
+    }
 
     void Awake()
     {
@@ -70,7 +83,7 @@ public class Shooter : MonoBehaviour
     public void Shoot()
     {
         // 해당 라운드에서 발사할 수 있는 횟수가 남았는지 확인
-        if (_shootableCount <= 0)
+        if (GameManager.Instance.CurState == GameManager.EState.Process && _shootableCount <= 0)
             return;
 
         // 양손 grab 여부 확인
@@ -96,6 +109,7 @@ public class Shooter : MonoBehaviour
     {
         _audioSource.PlayOneShot(reloadClip);
         _magazine.Enqueue(ammo);
+        ammo.transform.parent = transform;
         ammo.gameObject.SetActive(false);
 
         //Debug.Log("Reload!");
@@ -115,11 +129,14 @@ public class Shooter : MonoBehaviour
             _audioSource.PlayOneShot(ejectClip);
 
             Ammo currentAmmo = _chamber;
-            currentAmmo.GetComponent<XRGrabInteractable>().interactionLayers = 0;
+            //currentAmmo.GetComponent<XRGrabInteractable>().interactionLayers = 0;
+            currentAmmo.SetInteractionLayer(0);
+            currentAmmo.transform.parent = null;
             currentAmmo.gameObject.SetActive(true);
             currentAmmo.gameObject.transform.position = ejectPoint.position;
             currentAmmo.gameObject.transform.rotation = ejectPoint.rotation;
             currentAmmo.GetComponent<Rigidbody>().AddForce(ejectPoint.right * ejectPower, ForceMode.Impulse);
+            currentAmmo.ReserveDestroy();
 
             // 약실 비움
             _chamber = null;

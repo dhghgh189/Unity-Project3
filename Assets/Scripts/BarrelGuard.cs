@@ -4,19 +4,23 @@ using UnityEngine;
 
 public class BarrelGuard : MonoBehaviour
 {
-    [SerializeField] Shooter _shooter;
+    [SerializeField] Shooter shooter;
+    [SerializeField] ShotgunInteractable shotgunInteractable;
 
     private void OnTriggerEnter(Collider other)
     {
+        if (shotgunInteractable.IsActivatedPumpAction == false)
+            return;
+
         if (other.gameObject.name == "LoadTrigger")
         {
             //Debug.Log("LoadTrigger Enter");
-            _shooter.LoadAmmoToChamber();
+            shooter.LoadAmmoToChamber();
         }
         else if (other.gameObject.name == "EjectTrigger")
         {
             //Debug.Log("EjectTrigger Enter");
-            _shooter.Eject();
+            shooter.Eject();
         }
     }
 }

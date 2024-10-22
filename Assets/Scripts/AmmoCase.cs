@@ -22,7 +22,9 @@ public class AmmoCase : MonoBehaviour
         if (GameManager.Instance.CurState == GameManager.EState.Process)
             return;
 
-        Ammo ammo = Instantiate(ammoPrefab);
+        //Ammo ammo = Instantiate(ammoPrefab);
+        Ammo ammo = PoolManager.Instance.Pop<Ammo>(ammoPrefab.gameObject);
+        ammo.Init();
         _interactionManager.SelectEnter(args.interactorObject, ammo.GetComponent<IXRSelectInteractable>());
     }
 }
